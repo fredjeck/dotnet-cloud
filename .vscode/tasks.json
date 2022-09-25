@@ -36,6 +36,26 @@
                 "${workspaceFolder}/WeatherForecast.Api/WeatherForecast.Api.csproj"
             ],
             "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "coverage",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "test",
+                "--collect:\"XPlat Code Coverage\"",
+                "--results-directory:${workspaceFolder}/WeatherForecast.Tests/coverage",
+            ]
+        },
+        {
+            "label": "coverage-report",
+            "command": "reportgenerator",
+            "type": "process",
+            "args": [
+                "-reports:\"${workspaceFolder}/WeatherForecast.Tests/coverage/coverage.cobertura.xml\"",
+                "-targetdir:\"${workspaceFolder}/WeatherForecast.Tests/coverage/report",
+                "-reporttypes:Html"
+            ]
         }
     ]
 }
