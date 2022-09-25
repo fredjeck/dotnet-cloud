@@ -26,6 +26,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\WeatherForecast.Api\WeatherForecast.Api.csproj" />
+    <ProjectReference Include="..\WeatherForecast.Core\WeatherForecast.Core.csproj" />
   </ItemGroup>
 
 </Project>

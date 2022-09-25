@@ -1,25 +1,51 @@
-var builder = WebApplication.CreateBuilder(args);
+using Polly;
+using Polly.Extensions.Http;
+using WeatherForecast.Core.Services;
+using WeatherForecast.Core.Services.Impl;
 
-// Add services to the container.
+var builder = ConfigureBuilder(WebApplication.CreateBuilder(args));
+ConfigureApplication(builder.Build()).Run();
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+/// <summary>
+/// Configure the WebApplicationBuilder
+/// </summary>
+static WebApplicationBuilder ConfigureBuilder(WebApplicationBuilder builder)
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    builder.Services.AddHttpClient<IGeoCodingService, NominatimGeoCodingService>()
+    .AddPolicyHandler(GetRetryPolicy())
+    .AddPolicyHandler(GetCircuitBreakerPolicy());
+    builder.Services.AddControllers();
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen();
+    return builder;
 }
 
-app.UseHttpsRedirection();
+/// <summary>
+/// Configure the WebApplication
+/// </summary>
+static WebApplication ConfigureApplication(WebApplication app)
+{
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
 
-app.UseAuthorization();
+    app.UseHttpsRedirection();
+    app.UseAuthorization();
+    app.MapControllers();
+    return app;
+}
 
-app.MapControllers();
+/// <summary>
+/// Uses Polly to define a Circuit Breaker policu which will break after 5 events for a duration of 30 seconds
+/// </summary>
+/// <returns>The circuit breaker policy</returns>
+static IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPolicy() => HttpPolicyExtensions.HandleTransientHttpError().CircuitBreakerAsync(5, TimeSpan.FromSeconds(30));
 
-app.Run();
+/// <summary>
+/// Uses Polly to define a retry policy in case the remote endpoint is not responding. Will try 3 times every 2 seconds exponentially
+/// </summary>
+/// <returns>The retry breaker policy</returns>
+static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy() => HttpPolicyExtensions.HandleTransientHttpError().OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.NotFound).WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
