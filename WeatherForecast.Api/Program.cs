@@ -15,6 +15,9 @@ static WebApplicationBuilder ConfigureBuilder(WebApplicationBuilder builder)
     builder.Services.AddHttpClient<IGeoCodingService, NominatimGeoCodingService>()
     .AddPolicyHandler(GetRetryPolicy())
     .AddPolicyHandler(GetCircuitBreakerPolicy());
+    builder.Services.AddHttpClient<IWeatherForecastService, OpenMeteoForecastService>()
+    .AddPolicyHandler(GetRetryPolicy())
+    .AddPolicyHandler(GetCircuitBreakerPolicy());
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();

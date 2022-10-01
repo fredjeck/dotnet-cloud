@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using WeatherForecast.Core.Model;
+using WeatherForecast.Core.Services;
 
 namespace WeatherForecast.Api.Controllers;
 
@@ -6,27 +8,32 @@ namespace WeatherForecast.Api.Controllers;
 [Route("[controller]")]
 public class WeatherForecastController : ControllerBase
 {
-    private static readonly string[] Summaries = new[]
-    {
-        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-    };
-
     private readonly ILogger<WeatherForecastController> _logger;
+    private readonly IGeoCodingService _geoCodingService;
+    private IWeatherForecastService _weatherService;
 
-    public WeatherForecastController(ILogger<WeatherForecastController> logger)
+    public WeatherForecastController(ILogger<WeatherForecastController> logger, IGeoCodingService geoService, IWeatherForecastService weatherService)
     {
         _logger = logger;
+        _geoCodingService = geoService;
+        _weatherService = weatherService;
     }
 
     [HttpGet(Name = "GetWeatherForecast")]
-    public IEnumerable<WeatherForecast> Get()
+    public async Task<ActionResult<WeatherReport>> Get(string q)
     {
-        return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+        var loc = await _geoCodingService.SearchLocation(q);
+        if (!loc.Any())
         {
-            Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            TemperatureC = Random.Shared.Next(-20, 55),
-            Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-        })
-        .ToArray();
+            return BadRequest("Location not found");
+        }
+
+        var report = await _weatherService.ForecastForLocation(loc.First());
+        if (report is null)
+        {
+            return BadRequest("No report found for location");
+        }
+
+        return report;
     }
 }

@@ -12,5 +12,5 @@ public interface IGeoCodingService
     /// </summary>
     /// <param name="location">The location to search for</param>
     /// <returns>The matching geo-coded locations or an empty collection</returns>
-    Task<IEnumerable<GeoCodingResult>> SearchLocation(string location);
+    Task<IEnumerable<LatLong>> SearchLocation(string location);
 }

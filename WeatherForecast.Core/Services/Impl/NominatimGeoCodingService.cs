@@ -22,8 +22,15 @@ public class NominatimGeoCodingService : IGeoCodingService
     }
 
     /// <inheritdoc/>
-    public async Task<IEnumerable<GeoCodingResult>> SearchLocation(string location)
+    public async Task<IEnumerable<LatLong>> SearchLocation(string location)
     {
-        return await _httpClient.GetFromJsonAsync<GeoCodingResult[]>($"/search?q={location}&format=json&addressdetails=1") ?? Enumerable.Empty<GeoCodingResult>();
+        try
+        {
+            return await _httpClient.GetFromJsonAsync<LatLong[]>($"/search?q={location}&format=json&addressdetails=1") ?? Enumerable.Empty<LatLong>();
+        }
+        catch
+        {
+            return Enumerable.Empty<LatLong>();
+        }
     }
 }

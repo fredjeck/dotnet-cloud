@@ -19,7 +19,7 @@ public class LocationController : ControllerBase
     }
 
     [HttpGet(Name = "GetLocation")]
-    public async Task<IEnumerable<GeoCodingResult>> Get(string q)
+    public async Task<IEnumerable<LatLong>> Get(string q)
     {
         return await _geoCodingService.SearchLocation(q);
     }
