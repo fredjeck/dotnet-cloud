@@ -19,8 +19,14 @@ public class LocationController : ControllerBase
     }
 
     [HttpGet(Name = "GetLocation")]
-    public async Task<IEnumerable<LatLong>> Get(string q)
+    public async Task<ActionResult<IEnumerable<LatLong>>> Get(string q)
     {
-        return await _geoCodingService.SearchLocation(q);
+        if(string.IsNullOrWhiteSpace(q)){
+            return BadRequest("Please provide a location using the 'q' query parameter");
+        }
+
+        // SearchLocation is safe and returns an empty collection if something goes wrong.
+        var latlongs = await _geoCodingService.SearchLocation(q);
+        return Ok(latlongs);
     }
 }

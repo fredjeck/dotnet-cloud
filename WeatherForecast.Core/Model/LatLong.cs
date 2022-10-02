@@ -11,7 +11,7 @@ public class LatLong
     [JsonPropertyName("display_name")]
     public string DisplayName { get; set; } = "";
     [JsonPropertyName("lat")]
-    public float Latitude { get; set; }
+    public double Latitude { get; set; }
     [JsonPropertyName("lon")]
-    public float Longitude { get; set; }
+    public double Longitude { get; set; }
 }

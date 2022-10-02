@@ -28,12 +28,13 @@ public class WeatherForecastController : ControllerBase
             return BadRequest("Location not found");
         }
 
-        var report = await _weatherService.ForecastForLocation(loc.First());
-        if (report is null)
+        WeatherReport? report = default;
+        try
         {
-            return BadRequest("No report found for location");
+            report = await _weatherService.ForecastForLocation(loc.First());
         }
+        catch { }
 
-        return report;
+        return report is null ? BadRequest("No report found for location") : Ok(report);
     }
 }

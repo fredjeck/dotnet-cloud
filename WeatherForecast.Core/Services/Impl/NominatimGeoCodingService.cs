@@ -17,7 +17,7 @@ public class NominatimGeoCodingService : IGeoCodingService
     {
         _logger = logger;
         _httpClient = httpClient;
-        _httpClient.BaseAddress = new Uri("https://nominatim.openstreetmap.org");
+        _httpClient.BaseAddress = new Uri("https://nominatim.openstreetmap.org"); // In a real life application this shall be handled in the appsettings
         _httpClient.DefaultRequestHeaders.Add("User-Agent", "NominatimGeoCodingService");
     }
 

@@ -18,36 +18,32 @@ public class OpenMeteoForecastService
     {
         _logger = logger;
         _httpClient = httpClient;
-        _httpClient.BaseAddress = new Uri("https://api.open-meteo.com");
+        _httpClient.BaseAddress = new Uri("https://api.open-meteo.com"); // In a real life application this shall be handled in the appsettings
         _httpClient.DefaultRequestHeaders.Add("User-Agent", "WeatherForecastService");
     }
 
     /// <inheritdoc/>
     public async Task<WeatherReport?> ForecastForLocation(LatLong location)
     {
-        try
+        // For the sake of demo, this method will just throw exceptions on failures
+        var result = await _httpClient.GetFromJsonAsync<OpenMeteoForecast>($"/v1/forecast?latitude={location.Latitude}&longitude={location.Longitude}&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_sum&timezone=Europe%2FBerlin");
+        if (result is not null)
         {
-            var result = await _httpClient.GetFromJsonAsync<OpenMeteoForecast>($"/v1/forecast?latitude={location.Latitude}&longitude={location.Longitude}&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_sum&timezone=Europe%2FBerlin");
-            if (result is not null)
+            return new WeatherReport()
             {
-                return new WeatherReport()
+                LatLong = location,
+                Forecasts = result.Daily.Time.Select((t, i) => new DailyWeather()
                 {
-                    LatLong = location,
-                    Forecasts = result.Daily.Time.Select((t, i) => new DailyWeather()
-                    {
-                        Date = t,
-                        MinTemperature = result.Daily.MinTemperatures[i],
-                        MaxTemperature = result.Daily.MaxTemperatures[i],
-                        Precipitations = result.Daily.Precipitations[i]
-                    })
+                    Date = t,
+                    MinTemperature = result.Daily.MinTemperatures[i],
+                    MaxTemperature = result.Daily.MaxTemperatures[i],
+                    Precipitations = result.Daily.Precipitations[i]
+                })
 
-                };
+            };
 
-            }
         }
-        catch
-        {
-        }
+
         return null;
     }
 }

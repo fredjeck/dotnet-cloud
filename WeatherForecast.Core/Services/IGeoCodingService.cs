@@ -9,6 +9,7 @@ public interface IGeoCodingService
 {
     /// <summary>
     /// Searches for the provided full text location (i.e. Promenade des Champs-Élysées) and returns geo coded location results.
+    /// This method must return an empty collection if the location cannot be geocoded.
     /// </summary>
     /// <param name="location">The location to search for</param>
     /// <returns>The matching geo-coded locations or an empty collection</returns>
