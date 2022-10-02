@@ -1,3 +1,5 @@
+using System.Reflection;
+using Microsoft.OpenApi.Models;
 using Polly;
 using Polly.Extensions.Http;
 using WeatherForecast.Core.Services;
@@ -7,9 +9,6 @@ var builder = ConfigureBuilder(WebApplication.CreateBuilder(args));
 ConfigureApplication(builder.Build()).Run();
 
 
-/// <summary>
-/// Configure the WebApplicationBuilder
-/// </summary>
 static WebApplicationBuilder ConfigureBuilder(WebApplicationBuilder builder)
 {
     builder.Services.AddHttpClient<IGeoCodingService, NominatimGeoCodingService>()
@@ -20,13 +19,26 @@ static WebApplicationBuilder ConfigureBuilder(WebApplicationBuilder builder)
     .AddPolicyHandler(GetCircuitBreakerPolicy());
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
-    builder.Services.AddSwaggerGen();
+    builder.Services.AddSwaggerGen(c =>
+    {
+        c.SwaggerDoc("v1",
+            new OpenApiInfo
+            {
+                Title = "Weather Report API",
+                Version = "v1",
+                Description ="Provides accurate weather report"
+            }
+        );
+
+        var location = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        foreach (var filePath in Directory.GetFiles(location ?? ".", "*.xml"))
+        {
+            c.IncludeXmlComments(filePath);
+        }
+    });
     return builder;
 }
 
-/// <summary>
-/// Configure the WebApplication
-/// </summary>
 static WebApplication ConfigureApplication(WebApplication app)
 {
     if (app.Environment.IsDevelopment())
@@ -41,14 +53,6 @@ static WebApplication ConfigureApplication(WebApplication app)
     return app;
 }
 
-/// <summary>
-/// Uses Polly to define a Circuit Breaker policu which will break after 5 events for a duration of 30 seconds
-/// </summary>
-/// <returns>The circuit breaker policy</returns>
 static IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPolicy() => HttpPolicyExtensions.HandleTransientHttpError().CircuitBreakerAsync(5, TimeSpan.FromSeconds(30));
 
-/// <summary>
-/// Uses Polly to define a retry policy in case the remote endpoint is not responding. Will try 3 times every 2 seconds exponentially
-/// </summary>
-/// <returns>The retry breaker policy</returns>
 static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy() => HttpPolicyExtensions.HandleTransientHttpError().OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.NotFound).WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));

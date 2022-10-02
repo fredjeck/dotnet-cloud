@@ -7,7 +7,7 @@ namespace WeatherForecast.Core.Services.Impl;
 /// <summary>
 /// A GeoCoding Implementation which uses OSM Nominatim to search for locations.
 /// </summary>
-/// <seelalso href="https://nominatim.org/release-docs/develop/api/Search/">The nominatim official reference</remark>
+/// <seelalso href="https://nominatim.org/release-docs/develop/api/Search/">The nominatim official reference</seelalso>
 public class NominatimGeoCodingService : IGeoCodingService
 {
     private readonly HttpClient _httpClient;

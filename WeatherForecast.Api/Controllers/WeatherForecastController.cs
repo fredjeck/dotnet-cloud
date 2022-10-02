@@ -19,7 +19,16 @@ public class WeatherForecastController : ControllerBase
         _weatherService = weatherService;
     }
 
+    /// <summary>
+    /// Provides a 7 days weather forecast for the supplied location.
+    /// </summary>
+    /// <param name="q">The queried full-text location</param>
+    /// <returns>A weeather forecast</returns>
+    /// <response code="200">When the location is found and a forecast can be generated for the location</response>
+    /// <response code="400">When the location does not exist or when the report generation fails</response>
     [HttpGet(Name = "GetWeatherForecast")]
+    [ProducesResponseType(typeof(WeatherReport), 200)]
+    [ProducesResponseType(typeof(string), 400)]
     public async Task<ActionResult<WeatherReport>> Get(string q)
     {
         var loc = await _geoCodingService.SearchLocation(q);

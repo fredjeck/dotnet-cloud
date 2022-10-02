@@ -18,6 +18,16 @@ public class LocationController : ControllerBase
         _geoCodingService = service;
     }
 
+
+    /// <summary>
+    /// Searches for a location and returns its latitude and longitude.
+    /// </summary>
+    /// <param name="q">The queried full-text location</param>
+    /// <returns>A list of matching places with their respective coordinates</returns>
+    /// <response code="200">When the location is found </response>
+    /// <response code="400">When the endpoint is being called with missing parameters</response>
+    [ProducesResponseType(typeof(IEnumerable<LatLong>), 200)]
+    [ProducesResponseType(typeof(string), 400)]
     [HttpGet(Name = "GetLocation")]
     public async Task<ActionResult<IEnumerable<LatLong>>> Get(string q)
     {

@@ -4,7 +4,7 @@ namespace WeatherForecast.Core.Model;
 
 /// <summary>
 /// A shortened version of the Nominatim GeoCoding search result
-/// <seelalso href="https://nominatim.org/release-docs/develop/api/Search/">The nominatim official reference</remark>
+/// <seelalso href="https://nominatim.org/release-docs/develop/api/Search/">The nominatim official reference</seelalso>
 /// </summary>
 public class LatLong
 {
